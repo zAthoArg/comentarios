@@ -6,7 +6,7 @@
 <style>
   body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #2b2b2b; /* Fondo gris oscuro */
     margin: 0;
     padding: 10px;
   }
@@ -18,45 +18,47 @@
     margin: auto;
   }
   .comentario {
-    background-color: white;
-    color: black;
+    background-color: #3c3c3c; /* Burbujas un poco más claras */
+    color: #ffffff; /* Texto blanco */
     padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
   }
   .nombre {
     font-weight: bold;
   }
   .nombre.tuyo {
-    color: #056616;
+    color: #00ff00; /* Tu nombre en verde */
   }
   .fecha {
     font-size: 0.8em;
-    color: gray;
+    color: #bbbbbb; /* Fecha en gris claro */
   }
   #form-comentario {
-    display: flex;
+    display:flex;
     flex-direction: column;
-    gap: 5px;
-    max-width: 600px;
-    margin: 20px auto;
+    gap:5px;
+    max-width:600px;
+    margin:20px auto;
   }
   #nombre, #mensaje {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 100%;
-    box-sizing: border-box;
+    padding:8px;
+    border-radius:5px;
+    border:1px solid #555555;
+    background-color:#3c3c3c;
+    color:#ffffff;
+    width:100%;
+    box-sizing:border-box;
   }
   #btn-comentar {
-    padding: 10px;
-    background-color: #00ff00;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    text-shadow: 0 0 2px black;
+    padding:10px;
+    background-color:#00ff00;
+    color:black;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    text-shadow:0 0 2px black;
   }
 </style>
 </head>
@@ -70,11 +72,9 @@
   <button id="btn-comentar">COMENTAR</button>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-  // Tu configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDgnZ4h-4xTpDcHqCxmgzNhmKze4HWM-yM",
     authDomain: "mcbe-zringpvp.firebaseapp.com",
@@ -88,7 +88,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database().ref('comentarios');
 
-  const tuNombre = "zRingPvP"; // Tu nombre exacto
+  const tuNombre = "zRingPvP";
 
   // Mostrar comentarios en tiempo real
   db.on('value', snapshot => {
@@ -99,7 +99,7 @@
       const div = document.createElement('div');
       div.className = 'comentario';
       const nombreSpan = document.createElement('span');
-      nombreSpan.className = 'nombre' + (data.nombre === tuNombre ? ' tuyo' : '');
+      nombreSpan.className = 'nombre' + (data.nombre === tuNombre ? 'tuyo' : '');
       nombreSpan.textContent = data.nombre;
       const fechaSpan = document.createElement('span');
       fechaSpan.className = 'fecha';
@@ -112,28 +112,24 @@
       div.appendChild(mensajeDiv);
       container.appendChild(div);
     });
+
+    // Ajuste de altura del iframe
+    if(window.parent){
+      window.parent.postMessage({ type:'resize-iframe', height: document.body.scrollHeight }, '*');
+    }
   });
 
   // Agregar comentario
   document.getElementById('btn-comentar').onclick = () => {
     const nombre = document.getElementById('nombre').value.trim();
     const mensaje = document.getElementById('mensaje').value.trim();
-    if(!nombre || !mensaje) {
-      alert('Completa ambos campos');
-      return;
-    }
-    // Bloquea a otros usuarios usar tu nombre
+    if(!nombre || !mensaje) { alert('Completa ambos campos'); return; }
+
+    // Bloqueo de tu nombre
     if(nombre === tuNombre && !confirm('Solo tú puedes usar este nombre. ¿Estás seguro?')) return;
 
-    const fecha = new Date();
-    const fechaStr = fecha.toLocaleString();
-
-    db.push({
-      nombre,
-      mensaje,
-      fecha: fechaStr
-    });
-
+    const fecha = new Date().toLocaleString();
+    db.push({ nombre, mensaje, fecha });
     document.getElementById('mensaje').value = '';
   };
 </script>

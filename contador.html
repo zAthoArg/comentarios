@@ -1,0 +1,56 @@
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    databaseURL: "https://mcbe-zringpvp-default-rtdb.firebaseio.com/"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const likesRef = db.ref("contador/likes");
+  const visitasRef = db.ref("contador/visitas");
+
+  // === VISITAS ===
+  visitasRef.once("value").then(snapshot => {
+    const visitas = snapshot.exists() ? snapshot.val() + 1 : 1;
+    visitasRef.set(visitas);
+  });
+
+  visitasRef.on("value", snapshot => {
+    const visitasNumber = document.getElementById("visitas-number");
+    visitasNumber.innerText = snapshot.val() || 0;
+  });
+
+  // === LIKES ===
+  likesRef.on("value", snapshot => {
+    const likesNumber = document.getElementById("likes-number");
+    likesNumber.innerText = snapshot.val() || 0;
+  });
+
+  const likeButton = document.getElementById("like-button");
+
+  // Evitar doble like
+  if (localStorage.getItem("ya_dio_like_zringpvp") === "true") {
+    likeButton.disabled = true;
+    likeButton.style.background = "#555";
+    likeButton.innerText = "¡Gracias!";
+    likeButton.style.cursor = "default";
+  }
+
+  likeButton.addEventListener("click", () => {
+    if (localStorage.getItem("ya_dio_like_zringpvp") === "true") return;
+
+    likesRef.once("value").then(snapshot => {
+      const likes = snapshot.exists() ? snapshot.val() + 1 : 1;
+      likesRef.set(likes);
+      localStorage.setItem("ya_dio_like_zringpvp", "true");
+
+      likeButton.disabled = true;
+      likeButton.style.background = "#555";
+      likeButton.innerText = "¡Gracias!";
+      likeButton.style.cursor = "default";
+    });
+  });
+</script>

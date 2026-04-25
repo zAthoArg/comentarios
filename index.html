@@ -56,7 +56,7 @@ body {
   cursor: pointer;
 }
 
-/* Hover solo para botón */
+/* Hover botón */
 .btn:hover {
   transform: scale(1.05);
 }
@@ -113,26 +113,10 @@ const likesRef = db.ref("contador/likes");
 const visitasRef = db.ref("contador/visitas");
 
 // =======================
-// VISITAS ÚNICAS POR USUARIO
+// VISITAS (CUENTA TODO)
 // =======================
-
-let userId = localStorage.getItem("user_id_zring");
-
-if (!userId) {
-  userId = "user_" + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem("user_id_zring", userId);
-}
-
-const userVisitRef = db.ref("visitas_usuarios/" + userId);
-
-userVisitRef.once("value").then(snapshot => {
-  if (!snapshot.exists()) {
-    userVisitRef.set(true);
-
-    visitasRef.once("value").then(s => {
-      visitasRef.set((s.val() || 0) + 1);
-    });
-  }
+visitasRef.once("value").then(s => {
+  visitasRef.set((s.val() || 0) + 1);
 });
 
 // Mostrar visitas en tiempo real
@@ -143,7 +127,6 @@ visitasRef.on("value", s => {
 // =======================
 // LIKES
 // =======================
-
 likesRef.on("value", s => {
   document.getElementById("likes-number").innerText = s.val() || 0;
 });
